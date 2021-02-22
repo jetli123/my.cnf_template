@@ -1,0 +1,144 @@
+[mysqld]
+datadir=/home/elex/mysql/data
+socket=/home/elex/mysql/status/mysql.sock
+port            = 3306
+symbolic-links = 0
+user           = elex
+plugin_dir=/home/elex/mysql/lib/plugin
+ignore-builtin-innodb
+plugin-load=innodb=ha_innodb_plugin.so
+
+
+[mysqld_safe]
+log-error=/home/elex/mysql/log/mysqld.log
+pid-file=/home/elex/mysql/status/mysqld.pid
+
+#### site customization ####
+
+
+[client]
+port            = 3306
+socket          = /home/elex/mysql/status/mysql.sock
+# Here follows entries for some specific programs
+
+# The MySQL server
+[mysqld]
+pid-file        = /home/elex/mysql/status/mysql.pid
+
+skip-external-locking
+skip-slave-start
+skip-name-resolve
+bind-address=10.173.17.237
+
+#key_buffer_size = 2M
+read_buffer_size=4M
+sort_buffer_size=4M
+table_cache=4096
+max_allowed_packet = 16M
+
+#net_buffer_length = 8K
+
+default-storage-engine=InnoDB
+
+character_set_server=utf8
+collation_server=utf8_bin
+init-connect='SET NAMES utf8'
+ 
+max_connection=4000
+max_user_connections=3990
+
+binlog_cache_size=2M
+#sort_buffer_size=16M
+#join_buffer_size=16M
+thread_cache_size=256
+
+#cpu * (2..4)
+thread_concurrency=2
+
+#query_cache_size = 128M
+#query_cache_limit = 2M
+default_table_type = INNODB
+
+#READ-UNCOMMITTED, READ-COMMITTED, REPEATABLE-READ, SERIALIZABLE
+transaction_isolation = REPEATABLE-READ 
+tmp_table_size=256M
+
+#--------log---------
+slow_query_log
+slow_query_log_file = /home/elex/mysql/log/mysql-slow.log
+long_query_time = 2
+
+log_error=/home/elex/mysql/log/mysql-err.log
+log_slave_updates = 0
+relay_log=log-relay
+
+
+#--------replication---------
+log-bin=log-bin
+#binlog_do_db = xnfarm
+#binlog_ignore_db = mysql
+#last intranet ip
+#read-only = 1
+
+server-id = 306
+
+#--------innodb--------------
+innodb_data_home_dir = /home/elex/mysql/data
+innodb_autoextend_increment = 256
+innodb_data_file_path=ibdata1:10M:autoextend
+innodb_table_locks = 0
+innodb_lock_wait_timeout = 10
+
+#----per-server used-------
+#innodb_io_capacity=200
+
+#(50-80)% * total memory ( 5G )
+innodb_buffer_pool_size= 21G
+innodb_additional_mem_pool_size=64M
+#innodb_file_io_thread= 8
+
+innodb_read_io_threads=4
+innodb_write_io_threads=4
+
+#innodb_thread_concurrency = 16
+innodb_log_group_home_dir = /home/elex/mysql/data
+innodb_log_files_in_group = 2
+#innodb_log_arch_dir = /home/elex/mysql/log/innodb.log
+innodb_flush_log_at_trx_commit = 2 
+sync_binlog=15
+innodb_support_xa=0
+innodb_file_per_table=1
+
+
+innodb_log_file_size = 1G #25% *buffer pool size (1G)
+innodb_log_buffer_size = 32M
+#innodb_flush_log_at_trx_commit = 0
+#innodb_thread_concurrency=5
+
+#-----------------------------
+
+[mysqldump]
+quick
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+
+default-character-set=utf8
+# Remove the next comment character if you are not familiar with SQL
+#safe-updates
+
+[isamchk]
+key_buffer = 20M
+sort_buffer_size = 20M
+read_buffer = 2M
+write_buffer = 2M
+
+[myisamchk]
+key_buffer = 20M
+sort_buffer_size = 20M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout
