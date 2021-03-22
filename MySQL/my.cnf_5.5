@@ -1,0 +1,293 @@
+[client]
+
+character-set-server = utf8
+
+port = 3306
+
+socket = /data/mysql/3306/mysql.sock
+
+[mysqld]
+
+character-set-server = utf8
+
+user = mysql
+
+port = 3306
+
+socket = /data/mysql/3306/mysql.sock
+
+basedir = /usr/local/webserver/mysql
+
+datadir = /data/mysql/3306/data
+
+log-error = /data/mysql/3306/mysql_error.log
+
+pid-file = /data/mysql/3306/mysql.pid
+
+# table_cache 引數設定表快取記憶體的數目。每個連線進來,都會至少開啟一個表快取。#因此, table_cache 的大小應與 max_connections 的設定有關。例如,對於 200 個#並行執行的連線,應該讓表的快取至少有 200 × N ,這裡 N 是應用可以執行的查詢#的一個聯接中表的最大數量。此外,還需要為臨時表和檔案保留一些額外的檔案描述符。
+
+#當 Mysql 訪問一個表時,如果該表在快取中已經被開啟,則可以直接訪問快取;如果#還沒有被快取,但是在 Mysql 表緩衝區中還有空間,那麼這個表就被開啟並放入表緩#衝區;如果表快取滿了,則會按照一定的規則將當前未用的表釋放,或者臨時擴大表快取來存放,使用表快取的好處是可以更快速地訪問表中的內容。執行 flush tables 會#清空快取的內容。一般來說,可以通過檢視資料庫執行峰值時間的狀態值 Open_tables #和 Opened_tables ,判斷是否需要增加 table_cache 的值(其中 open_tables 是當#前開啟的表的數量, Opened_tables 則是已經開啟的表的數量)。即如果open_tables接近table_cache的時候,並且Opened_tables這個值在逐步增加,那就要考慮增加這個#值的大小了。還有就是Table_locks_waited比較高的時候,也需要增加table_cache。
+
+open_files_limit = 10240
+
+table_cache = 512
+
+#非動態變數,需要重啟服務
+
+#指定MySQL可能的連線數量。當MySQL主執行緒在很短的時間內接收到非常多的連線請求,該引數生效,主執行緒花費很短的時間檢查連線並且啟動一個新執行緒。back_log引數的值指出在MySQL暫時停止響應新請求之前的短時間內多少個請求可以被存在堆疊中。如果系統在一個短時間內有很多連線,則需要增大該引數的值,該引數值指定到來的TCP/IP連線的偵聽佇列的大小。不同的作業系統在這個佇列大小上有它自己的限制。試圖設定back_log高於你的作業系統的限制將是無效的。預設值為50。對於Linux系統推薦設定為小於512的整數。
+
+back_log = 600
+
+#MySQL允許最大連線數
+
+max_connections = 5000
+
+#可以允許多少個錯誤連線
+
+max_connect_errors = 6000
+
+#使用skip-external-locking MySQL選項以避免外部鎖定。該選項預設開啟
+
+external-locking = FALSE
+
+#設定最大包,限制server接受的資料包大小,避免超長SQL的執行有問題預設值為16M,當MySQL客戶端或mysqld伺服器收到大於max_allowed_packet位元組的資訊包時,將發出“資訊包過大”錯誤,並關閉連線。對於某些客戶端,如果通訊資訊包過大,在執行查詢期間,可能會遇到“丟失與MySQL伺服器的連線”錯誤。預設值16M。
+
+#dev-doc: http://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html
+
+max_allowed_packet = 32M
+
+# Sort_Buffer_Size 是一個connection級引數,在每個connection(session)第一次需要使用這個buffer的時候,一次性分配設定的記憶體。
+
+#Sort_Buffer_Size 並不是越大越好,由於是connection級的引數,過大的設定+高併發可能會耗盡系統記憶體資源。例如:500個連線將會消耗 500*sort_buffer_size(8M)=4G記憶體
+
+#Sort_Buffer_Size 超過2KB的時候,就會使用mmap() 而不是 malloc() 來進行記憶體分配,導致效率降低。
+
+#技術導讀 http://blog.webshuo.com/2011/02/16/mysql-sort_buffer_size/
+
+#dev-doc: http://dev.mysql.com/doc/refman/5.5/en/server-parameters.html
+
+#explain select*from table where order limit;出現filesort
+
+#屬重點優化引數
+
+sort_buffer_size = 8M
+
+#用於表間關聯快取的大小
+
+join_buffer_size = 1M
+
+#伺服器執行緒快取這個值表示可以重新利用儲存在快取中執行緒的數量,當斷開連線時如果快取中還有空間,那麼客戶端的執行緒將被放到快取中,如果執行緒重新被請求,那麼請求將從快取中讀取,如果快取中是空的或者是新的請求,那麼這個執行緒將被重新建立,如果有很多新的執行緒,增加這個值可以改善系統性能.通過比較 Connections 和 Threads_created 狀態的變數,可以看到這個變數的作用
+
+thread_cache_size = 300
+
+#設定thread_concurrency的值的正確與否, 對mysql的效能影響很大, 在多個cpu(或多核)的情況下,錯誤設定了thread_concurrency的值, 會導致mysql不能充分利用多cpu(或多核), 出現同一時刻只能一個cpu(或核)在工作的情況。thread_concurrency應設為CPU核數的2倍. 比如有一個雙核的CPU, 那麼thread_concurrency的應該為4; 2個雙核的cpu, thread_concurrency的值應為8
+
+#屬重點優化引數
+
+thread_concurrency = 8
+
+#對於使用MySQL的使用者,對於這個變數大家一定不會陌生。前幾年的MyISAM引擎優化中,這個引數也是一個重要的優化引數。但隨著發展,這個引數也爆露出來一些問題。機器的記憶體越來越大,人們也都習慣性的把以前有用的引數分配的值越來越大。這個引數加大後也引發了一系列問題。我們首先分析一下query_cache_size的工作原理:一個SELECT查詢在DB中工作後,DB會把該語句快取下來,當同樣的一個SQL再次來到DB裡呼叫時,DB在該表沒發生變化的情況下把結果從快取中返回給Client。這裡有一個關建點,就是DB在利用Query_cache工作時,要求該語句涉及的表在這段時間內沒有發生變更。那如果該表在發生變更時,Query_cache裡的資料又怎麼處理呢?首先要把Query_cache和該表相關的語句全部置為失效,然後在寫入更新。那麼如果Query_cache非常大,該表的查詢結構又比較多,查詢語句失效也慢,一個更新或是Insert就會很慢,這樣看到的就是Update或是Insert怎麼這麼慢了。所以在資料庫寫入量或是更新量也比較大的系統,該引數不適合分配過大。而且在高併發,寫入量大的系統,建系把該功能禁掉。
+
+#重點優化引數(主庫 增刪改-MyISAM)
+
+query_cache_size = 512M
+
+#指定單個查詢能夠使用的緩衝區大小,預設為1M
+
+query_cache_limit = 2M
+
+#預設是4KB,設定值大對大資料查詢有好處,但如果你的查詢都是小資料查詢,就容易造成記憶體碎片和浪費
+
+#查詢快取碎片率 = Qcache_free_blocks / Qcache_total_blocks * 100%
+
+#如果查詢快取碎片率超過20%,可以用FLUSH QUERY CACHE整理快取碎片,或者試試減小query_cache_min_res_unit,如果你的查詢都是小資料量的話。
+
+#查詢快取利用率 = (query_cache_size Qcache_free_memory) / query_cache_size * 100%
+
+#查詢快取利用率在25%以下的話說明query_cache_size設定的過大,可適當減小;查詢快取利用率在80%以上而且Qcache_lowmem_prunes > 50的話說明query_cache_size可能有點小,要不就是碎片太多。
+
+#查詢快取命中率 = (Qcache_hits Qcache_inserts) / Qcache_hits * 100%
+
+query_cache_min_res_unit = 2k
+
+default-storage-engine = MyISAM
+
+#限定用於每個資料庫執行緒的棧大小。預設設定足以滿足大多數應用
+
+thread_stack = 192K
+
+# 設定預設的事務隔離級別.可用的級別如下:
+
+# READ-UNCOMMITTED, READ-COMMITTED, REPEATABLE-READ, SERIALIZABLE
+
+# 1.READ UNCOMMITTED-讀未提交2.READ COMMITTE-讀已提交3.REPEATABLE READ -可重複讀4.SERIALIZABLE -序列
+
+transaction_isolation = READ-COMMITTED
+
+# tmp_table_size 的預設大小是 32M。如果一張臨時表超出該大小,MySQL產生一個 The table tbl_name is full 形式的錯誤,如果你做很多高階 GROUP BY 查詢,增加 tmp_table_size 值。
+
+tmp_table_size = 246M
+
+max_heap_table_size = 246M
+
+#索引快取大小: 它決定了資料庫索引處理的速度,尤其是索引讀的速度
+
+key_buffer_size = 512M
+
+# MySql讀入緩衝區大小。對錶進行順序掃描的請求將分配一個讀入緩衝區,MySql會為它分配一段記憶體緩衝區。read_buffer_size變數控制這一緩衝區的大小。如果對錶的順序掃描請求非常頻繁,並且你認為頻繁掃描進行得太慢,可以通過增加該變數值以及記憶體緩衝區大小提高其效能。
+
+read_buffer_size = 4M
+
+# MySql的隨機讀(查詢操作)緩衝區大小。當按任意順序讀取行時(例如,按照排序順序),將分配一個隨機讀快取區。進行排序查詢時,MySql會首先掃描一遍該緩衝,以避免磁碟搜尋,提高查詢速度,如果需要排序大量資料,可適當調高該值。但MySql會為每個客戶連線發放該緩衝空間,所以應儘量適當設定該值,以避免記憶體開銷過大。
+
+read_rnd_buffer_size = 16M
+
+#批量插入資料快取大小,可以有效提高插入效率,預設為8M
+
+bulk_insert_buffer_size = 64M
+
+# MyISAM表發生變化時重新排序所需的緩衝
+
+myisam_sort_buffer_size = 128M
+
+# MySQL重建索引時所允許的最大臨時檔案的大小 (當 REPAIR, ALTER TABLE 或者 LOAD DATA INFILE).
+
+# 如果檔案大小比此值更大,索引會通過鍵值緩衝建立(更慢)
+
+myisam_max_sort_file_size = 10G
+
+# 如果一個表擁有超過一個索引, MyISAM 可以通過並行排序使用超過一個執行緒去修復他們.
+
+# 這對於擁有多個CPU以及大量記憶體情況的使用者,是一個很好的選擇.
+
+myisam_repair_threads = 1
+
+#自動檢查和修復沒有適當關閉的 MyISAM 表
+
+myisam_recover
+
+interactive_timeout = 120
+
+wait_timeout = 120
+
+innodb_data_home_dir = /data/mysql/3306/data
+
+#表空間檔案 重要資料
+
+innodb_data_file_path = ibdata1:2000M;ibdata2:10M:autoextend
+
+#這個引數用來設定 InnoDB 儲存的資料目錄資訊和其它內部資料結構的記憶體池大小,類似於Oracle的library cache。這不是一個強制引數,可以被突破。
+
+innodb_additional_mem_pool_size = 16M
+
+#這對Innodb表來說非常重要。Innodb相比MyISAM表對緩衝更為敏感。MyISAM可以在預設的 key_buffer_size 設定下執行的可以,然而Innodb在預設的 innodb_buffer_pool_size 設定下卻跟蝸牛似的。由於Innodb把資料和索引都快取起來,無需留給作業系統太多的記憶體,因此如果只需要用Innodb的話則可以設定它高達 70-80% 的可用記憶體。一些應用於 key_buffer 的規則有 ― 如果你的資料量不大,並且不會暴增,那麼無需把 innodb_buffer_pool_size 設定的太大了
+
+innodb_buffer_pool_size = 512M
+
+#檔案IO的執行緒數,一般為 4,但是在 Windows 下,可以設定得較大。
+
+innodb_file_io_threads = 4
+
+# 在InnoDb核心內的允許執行緒數量.
+
+# 最優值依賴於應用程式,硬體以及作業系統的排程方式.
+
+# 過高的值可能導致執行緒的互斥顛簸.
+
+innodb_thread_concurrency = 8
+
+#如果將此引數設定為1,將在每次提交事務後將日誌寫入磁碟。為提供效能,可以設定為0或2,但要承擔在發生故障時丟失資料的風險。設定為0表示事務日誌寫入日誌檔案,而日誌檔案每秒重新整理到磁碟一次。設定為2表示事務日誌將在提交時寫入日誌,但日誌檔案每次重新整理到磁碟一次。
+
+innodb_flush_log_at_trx_commit = 2
+
+#此引數確定些日誌檔案所用的記憶體大小,以M為單位。緩衝區更大能提高效能,但意外的故障將會丟失資料.MySQL開發人員建議設定為1-8M之間
+
+innodb_log_buffer_size = 16M
+
+#此引數確定資料日誌檔案的大小,以M為單位,更大的設定可以提高效能,但也會增加恢復故障資料庫所需的時間
+
+innodb_log_file_size = 128M
+
+#為提高效能,MySQL可以以迴圈方式將日誌檔案寫到多個檔案。推薦設定為3M
+
+innodb_log_files_in_group = 3
+
+#推薦閱讀 http://www.taobaodba.com/html/221_innodb_max_dirty_pages_pct_checkpoint.html
+
+# Buffer_Pool中Dirty_Page所佔的數量,直接影響InnoDB的關閉時間。引數innodb_max_dirty_pages_pct可以直接控制了Dirty_Page在Buffer_Pool中所佔的比率,而且幸運的是innodb_max_dirty_pages_pct是可以動態改變的。所以,在關閉InnoDB之前先將innodb_max_dirty_pages_pct調小,強制資料塊Flush一段時間,則能夠大大縮短MySQL關閉的時間。
+
+innodb_max_dirty_pages_pct = 90
+
+# InnoDB 有其內建的死鎖檢測機制,能導致未完成的事務回滾。但是,如果結合InnoDB使用MyISAM的lock tables 語句或第三方事務引擎,則InnoDB無法識別死鎖。為消除這種可能性,可以將innodb_lock_wait_timeout設定為一個整數值,指示 MySQL在允許其他事務修改那些最終受事務回滾的資料之前要等待多長時間(秒數)
+
+innodb_lock_wait_timeout = 120
+
+#獨享表空間(關閉)
+
+innodb_file_per_table = 0
+
+#start mysqld with slow-query-log-file=/data/mysql/3306/slow.log
+
+slow_query_log
+
+long_query_time = 1
+
+replicate-ignore-db = mysql
+
+replicate-ignore-db = test
+
+replicate-ignore-db = information_schema
+
+#配置從庫上的更新操作是否寫二進位制檔案,如果這臺從庫,還要做其他從庫的主庫,那麼就需要打這個引數,以便從庫的從庫能夠進行日誌同步這個引數要和―logs-bin一起使用
+
+log-slave-updates
+
+log-bin = /data/mysql/3306/binlog/binlog
+
+binlog_cache_size = 4M
+
+#STATEMENT,ROW,MIXED
+
+#基於SQL語句的複製(statement-based replication, SBR),基於行的複製(row-based replication, RBR),混合模式複製(mixed-based replication, MBR)。相應地,binlog的格式也有三種:STATEMENT,ROW,MIXED。
+
+binlog_format = MIXED
+
+max_binlog_cache_size = 64M
+
+max_binlog_size = 1G
+
+relay-log-index = /data/mysql/3306/relaylog/relaylog
+
+relay-log-info-file = /data/mysql/3306/relaylog/relaylog
+
+relay-log = /data/mysql/3306/relaylog/relaylog
+
+expire_logs_days = 30
+
+skip-name-resolve
+
+#master-connect-retry = 10
+
+slave-skip-errors = 1032,1062,126,1114,1146,1048,1396
+
+server-id = 1
+
+[mysqldump]
+
+quick
+
+max_allowed_packet = 32M
+
+[myisamchk]
+
+key_buffer_size = 256M
+
+sort_buffer_size = 256M
+
+read_buffer = 2M
+
+write_buffer = 2M
+
+[mysqlhotcopy]
+
+interactive-timeout
