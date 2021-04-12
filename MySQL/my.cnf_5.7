@@ -1,7 +1,7 @@
 [client]
 default-character-set = utf8mb4
 user = root
-socket = /usr/local/mysql/status/mysql.sock
+socket = /home/mysql/status/mysql.sock
 port = 3306
 
 
@@ -79,6 +79,8 @@ log-bin-trust-function-creators = 1
 
 # innodb settings #
 innodb_page_size = 16384
+innodb_data_file_path = ibdata1:50M:autoextend
+innodb_data_home_dir = /home/mysql/data
 innodb_buffer_pool_size = 20G
 innodb_buffer_pool_instances = 8
 innodb_buffer_pool_load_at_startup = 1
@@ -91,6 +93,7 @@ innodb_flush_method = O_DIRECT
 innodb_undo_logs = 128
 #innodb_undo_tablespaces = 2
 innodb_flush_neighbors = 1
+innodb_log_group_home_dir = /home/mysql/data
 innodb_log_file_size = 4G
 innodb_log_files_in_group = 2
 innodb_log_buffer_size = 64M
