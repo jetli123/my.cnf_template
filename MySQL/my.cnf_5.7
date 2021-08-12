@@ -14,7 +14,7 @@ malloc-lib = /usr/lib64/libjemalloc.so.1
 
 [mysqld]
 # basic settings #
-datadir = /home/mysql/data
+datadir = /home/mysql/data/
 socket = /home/mysql/status/mysql.sock
 pid-file = /home/mysql/status/mysql.pid
 
@@ -145,7 +145,7 @@ innodb_buffer_pool_instances = 8
 innodb_buffer_pool_size = 20G
 innodb_change_buffering = all
 innodb_data_file_path = ibdata1:50M:autoextend
-innodb_data_home_dir = /home/mysql/data
+innodb_data_home_dir = /home/mysql/data/
 innodb_doublewrite = 1
 innodb_page_size = 16384
 innodb_file_format = Barracuda
@@ -160,7 +160,7 @@ innodb_large_prefix = 1
 innodb_log_buffer_size = 32M
 innodb_log_file_size = 1G
 innodb_log_files_in_group = 2
-innodb_log_group_home_dir = /home/mysql/data
+innodb_log_group_home_dir = /home/mysql/data/
 innodb_online_alter_log_max_size = 2G
 innodb_open_files = 2000
 innodb_print_all_deadlocks = 1
