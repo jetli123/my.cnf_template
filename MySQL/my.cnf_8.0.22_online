@@ -21,6 +21,7 @@ bind-address = 10.187.97.249
 basedir = /home/mysql/
 datadir = /home/mysql/data/
 socket = /home/mysql/status/mysql.sock
+mysqlx_socket = /home/mysql/status/mysqlx3306.sock
 pid-file = /home/mysql/status/mysql.pid
 
 skip-external-locking
