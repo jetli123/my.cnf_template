@@ -16,6 +16,7 @@ malloc-lib = /usr/lib64/libjemalloc.so.1
 # basic settings #
 user = elex
 port = 3306
+mysqlx_port = 33060 # X plugin port, 3307 ==> 33070
 bind-address = 10.187.97.249
 basedir = /home/mysql/
 datadir = /home/mysql/data/
